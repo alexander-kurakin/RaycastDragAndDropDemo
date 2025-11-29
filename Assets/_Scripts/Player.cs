@@ -8,11 +8,14 @@ public class Player : MonoBehaviour
     private const int LeftMouseButtonCode = 0;
     private const int RightMouseButtonCode = 1;
     private const float CameraSwitchInterval = 5f;
+    private const float ExplosionRadius = 5f;
+    private const float ExplosionForce = 750f;
 
     [SerializeField] private GameObject _groundPlane;
     [SerializeField] private DragAndDropService _dragAndDropService;
+    [SerializeField] private EffectsSpawner _effectsSpawner;
 
-    private ExplosionShooter _explosionShooter;
+    private Shooter _shooter;
     private CameraSwitcher _cameraSwitcher;
     private IMovable _currentItem;
     private Vector3 _mouseOnThePlanePosition;
@@ -23,9 +26,10 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _explosionShooter = GetComponent<ExplosionShooter>();
         _cameraSwitcher = GetComponent<CameraSwitcher>();
         _cameraSwitchTimer = CameraSwitchInterval;
+
+        _shooter = new Shooter(new RigidBodyBasedExplosion(ExplosionRadius, ExplosionForce));
     }
 
     private void Update()
@@ -47,7 +51,10 @@ public class Player : MonoBehaviour
         }
 
         if (Input.GetMouseButtonDown(RightMouseButtonCode))
-            _explosionShooter.Shoot(_mouseOnThePlanePosition);
+        {
+            _effectsSpawner.SpawnExplosionEffect(_mouseOnThePlanePosition);
+            _shooter.Shoot(_mouseOnThePlanePosition);
+        }
     }
 
     private void SwitchCameras()
